@@ -395,8 +395,12 @@ EOS
     [ -z "${paths##\|}" ] && return # stop if we have nothing to add
 
     # maintain the file
-    local tempfile
-    tempfile="$(mktemp "$_FASD_DATA".XXXXXX)" || return
+    (
+      tempfile="$(mktemp "$_FASD_DATA".XXXXXX)" || exit 1
+      # Trap unexpected exits and signals to guarantee cleanup
+      trap '[ -f "$tempfile" ] && env rm -f "$tempfile" 2>/dev/null' EXIT
+      trap 'exit 1' HUP INT QUIT TERM ABRT
+      
     $_FASD_AWK -v list="$paths" -v now="$(date +%s)" -v max="$_FASD_MAX" -F"|" '
       BEGIN {
         split(list, files, "|")
@@ -424,11 +428,12 @@ EOS
         else
           for(i in rank) print i "|" rank[i] "|" time[i]
       }' "$_FASD_DATA" 2>> "$_FASD_SINK" >| "$tempfile"
-    if [ $? -ne 0 ]; then
-      env rm -f "$tempfile"
-    else
+      
+      # If the awk command succeeded, atomically replace the database
+      if [ $? -eq 0 ]; then
       env mv -f "$tempfile" "$_FASD_DATA"
     fi
+    )
     ;;
 
   --delete|-D) shift # delete entries
@@ -443,16 +448,19 @@ EOS
         s@^$@/@;s@\([.[\/*^$]\)@\\\1@g;s@^\(.*\)$@/^\1|/d@' 2>> "$_FASD_SINK")"
 
     # maintain the file
-    local tempfile
-    tempfile="$(mktemp "$_FASD_DATA".XXXXXX)" || return
+    (
+      tempfile="$(mktemp "$_FASD_DATA".XXXXXX)" || exit 1
+      # Trap unexpected exits and signals to guarantee cleanup
+      trap '[ -f "$tempfile" ] && env rm -f "$tempfile" 2>/dev/null' EXIT
+      trap 'exit 1' HUP INT QUIT TERM ABRT
 
     sed "$sed_cmd" "$_FASD_DATA" 2>> "$_FASD_SINK" >| "$tempfile"
 
-    if [ $? -ne 0 ]; then
-      env rm -f "$tempfile"
-    else
+      # If the sed command succeeded, atomically replace the database
+      if [ $? -eq 0 ]; then
       env mv -f "$tempfile" "$_FASD_DATA"
     fi
+    )
     ;;
 
   --query) shift # query the db, --query [$typ ["$fnd" [$mode]]]

@@ -50,7 +50,7 @@ The automated releases enable package managers like Homebrew to:
 
 If the automated process fails, you can create releases manually:
 
-1. Go to [Releases page](https://github.com/whjvenyl/fasd/releases)
+1. Go to [Releases page](https://github.com/jamescherti/efasd/releases)
 2. Click "Create a new release"
 3. Choose or create a tag (e.g., `v2.0.1`)
 4. Add release notes

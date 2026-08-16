@@ -1,11 +1,10 @@
-# Fasd
+# eFasd (Enhanced Fasd) - An fasd fork that is optimized for zero-latency prompt rendering and improved stability
 
-Fasd (pronounced similar to "fast") is a command-line productivity booster.
+Fasd (pronounced similar to "e-fast") is a command-line productivity booster.
 Fasd offers quick access to files and directories for POSIX shells. It is
-inspired by tools like [autojump](https://github.com/joelthelion/autojump),
-[z](http://github.com/rupa/z) and [v](https://github.com/rupa/v). Fasd keeps
-track of files and directories you have accessed, so that you can quickly
-reference them in the command line.
+inspired by tools like autojump, z and v.com/rupa/v). Fasd keeps track of files
+and directories you have accessed, so that you can quickly reference them in the
+command line.
 
 The name fasd comes from the default suggested aliases `f`(files),
 `a`(files/directories), `s`(show/search/select), `d`(directories).
@@ -14,7 +13,28 @@ Fasd ranks files and directories by "frecency," that is, by both "frequency" and
 "recency." The term "frecency" was first coined by Mozilla and used in Firefox
 ([link](https://developer.mozilla.org/en/The_Places_frecency_algorithm)).
 
-# Introduction
+## About This Fork
+
+eFasd is a fork of whjvenyl/fasd. Since the original repository is no longer
+actively maintained, this fork was created to integrate enhancements. eFasd
+introduces the following improvements:
+
+- **Robust Temporary File Cleanup**: Implemented strict signal traps to
+  guarantee temporary files are cleaned up upon unexpected signal interruption
+  or process termination. This prevents the accumulation of orphaned temporary
+  files in the file system.
+- **VCS Traversal Safety**: Fixed a bug in the `get_vcs` directory traversal
+  logic that caused an infinite loop when the script encountered unreadable or
+  inaccessible parent directories.
+- **Zero-Latency Prompt Rendering**: The upstream `fasd` implementation executes
+  its processing pipeline synchronously during prompt evaluation. This causes
+  approximately 35ms of latency per prompt render due to subshell forks and
+  synchronous disk I/O operations. This fork resolves the latency by wrapping
+  the execution pipeline in a double-fork pattern. This pushes the workload to
+  the background, eliminating prompt blocking while cleanly suppressing Bash job
+  control output notifications.
+
+## Introduction
 
 If you use your shell to navigate and launch applications, fasd can help you do
 it more efficiently. With fasd, you can open files regardless of which
@@ -56,18 +76,14 @@ cp `f mov` .
 
 # Install
 
-The upstream version of `fasd` is available in various package managers. Please check
-[the wiki page](https://github.com/clvv/fasd/wiki/Installing-via-Package-Managers)
-for an up-to-date list.
+You can obtain a copy of fasd from:
 
-You can also obtain a copy of fasd from the [releases page](https://github.com/whjvenyl/fasd/releases):
-
-    curl -L -o fasd https://github.com/whjvenyl/fasd/releases/latest/download/fasd
+    curl -L -o fasd https://raw.githubusercontent.com/jamescherti/efasd/refs/heads/master/fasd
     chmod +x fasd
 
 Or clone the repository:
 
-    git clone git@github.com:whjvenyl/fasd.git
+    git clone https://github.com/jamescherti/efasd
 
 Fasd is a self-contained POSIX shell script that can be either sourced or
 executed. A Makefile is provided to install `fasd` and `fasd.1` to desired
@@ -146,7 +162,7 @@ alias c='fasd_cd -d'
 After you first installed fasd, open some files (with any program) or `cd`
 around in your shell. Then try some examples below.
 
-# Examples
+## Examples
 
 ```sh
 f foo           # list frecent files matching foo
@@ -174,7 +190,7 @@ completion work. For instance:
 
 You could select an entry in the list of matching files.
 
-# Matching
+## Matching
 
 Fasd has three matching modes: default, case-insensitive, and fuzzy.
 
@@ -190,19 +206,19 @@ characters for fuzzy matching.
 
 Tips:
 
-* If you want your last query not to match the last segment of the path, append
+- If you want your last query not to match the last segment of the path, append
   `/` as the last query.
-* If you want your last query to match the end of the filename, append `$` to
+- If you want your last query to match the end of the filename, append `$` to
   the last query.
 
-# How It Works
+## How It Works
 
 When you run fasd init code or source `fasd`, fasd adds a hook which will be
 executed whenever you execute a command. The hook will scan your commands'
 arguments and determine if any of them refer to existing files or directories.
 If yes, fasd will add them to the database.
 
-# Compatibility
+## Compatibility
 
 Fasd's basic functionalities are POSIX compliant, meaning that you should be
 able to use fasd in all POSIX compliant shells. Your shell need to support
@@ -216,7 +232,7 @@ initialization code for not yet supported shells.
 Fasd has been tested on the following shells: bash, zsh, mksh, pdksh, dash,
 busybox ash, FreeBSD 9 /bin/sh and OpenBSD /bin/sh.
 
-# Synopsis
+## Synopsis
 
     fasd [options] [query ...]
     [f|a|s|d|z] [options] [query ...]
@@ -240,7 +256,7 @@ busybox ash, FreeBSD 9 /bin/sh and OpenBSD /bin/sh.
         -A    add paths
         -D    delete paths
 
-# Tab Completion
+## Tab Completion
 
 Fasd offers two completion modes, command mode completion and word mode
 completion. Command mode completion works in bash and zsh. Word mode
@@ -271,7 +287,7 @@ bindkey '^X^F' fasd-complete-f  # C-x C-f to do fasd-complete-f (only files)
 bindkey '^X^D' fasd-complete-d  # C-x C-d to do fasd-complete-d (only directories)
 ```
 
-# Backends
+## Backends
 
 Fasd can take advantage of different sources of recent / frequent files. Most
 desktop environments (such as OS X and Gtk) and some editors (such as Vim) keep
@@ -299,13 +315,13 @@ You can define your own backend by declaring a function by that name in your
 [config file](#tweaks). You can set default backend with `_FASD_BACKENDS` variable in
 our [config file](#tweaks).
 
-Fasd can mimic [v](http://github.com/rupa/v)'s behavior by this alias:
+Fasd can mimic v behavior by this alias:
 
 ```sh
 alias v='f -t -e vim -b viminfo'
 ```
 
-# Tweaks
+## Tweaks
 
 Some shell variables that you can set before sourcing `fasd`. You can set them
 in `$HOME/.config/fasd/config`
@@ -368,7 +384,7 @@ $_FASD_NOCASE
 If set to any non-empty string, fasd will ignore case when matching.
 ```
 
-# Debugging
+## Debugging
 
 If fasd does not work as expected, please file a bug report describing the
 unexpected behavior along with your OS version, shell version, awk version, sed
@@ -380,7 +396,7 @@ You can set `_FASD_SINK` in your [config file](#tweaks) to obtain a log.
 _FASD_SINK="$HOME/.fasd.log"
 ```
 
-# COPYING
+## COPYING
 
 Fasd is originally written based on code from [z](https://github.com/rupa/z) by
 rupa deadwyler under the WTFPL license. Most if not all of the code has been

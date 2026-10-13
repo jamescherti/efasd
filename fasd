@@ -106,6 +106,7 @@ fasd() {
           [ -z "$_FASD_FUZZY" ] && _FASD_FUZZY=2
           [ -z "$_FASD_VIMINFO" ] && _FASD_VIMINFO="$HOME/.viminfo"
           [ -z "$_FASD_RESOLVE_SYMLINKS" ] && _FASD_RESOLVE_SYMLINKS=0
+          [ -z "$_FASD_IGNORE_TMP" ] && _FASD_IGNORE_TMP=1
           [ -z "$_FASD_ONLY_VCS" ] && _FASD_ONLY_VCS=1
           [ -z "$_FASD_RECENTLY_USED_XBEL" ] && \
             _FASD_RECENTLY_USED_XBEL="$HOME/.local/share/recently-used.xbel"
@@ -177,11 +178,11 @@ add-zsh-hook preexec _fasd_preexec
 
 EOS
         ;;
-    
+
       # The previous implementation executed the fasd processing pipeline
       # synchronously during prompt evaluation. This caused ~35ms of latency per
       # prompt render due to subshell forks and synchronous disk I/O.
-      # 
+      #
       # This commit wraps the execution pipeline in a double-fork pattern
       # ( command & ). This backgrounds the workload to eliminate latency while
       # cleanly suppressing Bash job control output notifications.
@@ -417,19 +418,48 @@ EOS
       # Trap unexpected exits and signals to guarantee cleanup
       trap '[ -f "$tempfile" ] && env rm -f "$tempfile" 2>/dev/null' EXIT
       trap 'exit 1' HUP INT QUIT TERM ABRT
-      
-    $_FASD_AWK -v list="$paths" -v now="$(date +%s)" -v max="$_FASD_MAX" -F"|" '
+
+      # Normalize TMPDIR exactly like the candidate paths
+      norm_tmpdir=""
+      if [ -n "$TMPDIR" ]; then
+        norm_tmpdir="$(printf %s\\n "$TMPDIR" | sed '/^[^/]/s@^@'"$PWD"'/@
+          s@/\.\.$@/../@;s@/\(\./\)\{1,\}@/@g;:0
+          s@[^/][^/]*//*\.\./@/@;t 0
+          s@^/*\.\./@/@;s@//*@/@g;s@/\.\{0,1\}$@@;s@^$@/@' 2>> "$_FASD_SINK" \
+          | ( [ $_FASD_RESOLVE_SYMLINKS = 1 ] && xargs -I {} readlink -f {} || cat ))"
+      fi
+
+    $_FASD_AWK -v list="$paths" -v now="$(date +%s)" -v max="$_FASD_MAX" \
+      -v tmpdir="$norm_tmpdir" -v ignore_tmp="$_FASD_IGNORE_TMP" -F"|" '
+      function is_tmp(p) {
+        if(ignore_tmp != 1) return 0
+        if(p == "") return 0
+        if(substr(p, length(p)) != "/") p = p "/"
+        if(index(p, "/tmp/") == 1) return 1
+        if(index(p, "/var/tmp/") == 1) return 1
+        if(index(p, "/private/tmp/") == 1) return 1
+        if(index(p, "/dev/shm/") == 1) return 1
+        if(tmpdir != "" && tmpdir != "/" && index(p, tmpdir) == 1) return 1
+        return 0
+      }
+
       BEGIN {
+        if(tmpdir != "" && substr(tmpdir, length(tmpdir)) != "/") {
+          tmpdir = tmpdir "/"
+        }
         split(list, files, "|")
         for(i in files) {
           path = files[i]
           if(path == "") continue
+          if(is_tmp(path)) continue
+
           paths[path] = path # array for checking
           rank[path] = 1
           time[path] = now
         }
       }
       $2 >= 1 {
+        if(is_tmp($1)) next
         if($1 in paths) {
           rank[$1] = $2 + 1 / $2
           time[$1] = now
@@ -445,7 +475,7 @@ EOS
         else
           for(i in rank) print i "|" rank[i] "|" time[i]
       }' "$_FASD_DATA" 2>> "$_FASD_SINK" >| "$tempfile"
-      
+
       # If the awk command succeeded, atomically replace the database
       if [ $? -eq 0 ]; then
       env mv -f "$tempfile" "$_FASD_DATA"

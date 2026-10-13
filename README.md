@@ -38,6 +38,8 @@ integrate enhancements, such as:
 - Fixed a bug in the `get_vcs` directory traversal logic that caused an infinite
   loop when the script encountered unreadable or inaccessible parent
   directories.
+- Filter temporary directories from the `fasd` database. This prevents temporary
+  files and directories from polluting the database.
 
 ## Introduction
 
@@ -380,6 +382,9 @@ Path to .viminfo file for viminfo backend, defaults to "$HOME/.viminfo"
 $_FASD_RESOLVE_SYMLINKS
 Set this option to 1 if you want fasd to resolve symbolic links. This is useful
 to prevent duplicates in the entry list. Defaults to 0.
+
+$_FASD_IGNORE_TMP
+Set to 0 to disable the filtering of temporary directories. Defaults to 1.
 
 $_FASD_RECENTLY_USED_XBEL
 Path to XDG recently-used.xbel file for recently-used backend, defaults to

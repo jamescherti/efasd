@@ -401,6 +401,49 @@ You can set `_FASD_SINK` in your [config file](#tweaks) to obtain a log.
 _FASD_SINK="$HOME/.fasd.log"
 ```
 
+## Recommendations to speed up fasd
+
+Add the following to your `~/.profile` file.
+
+Disable VCS traversal: Prevent disk I/O overhead on every command execution by stopping `fasd` from recursively searching upward for a `.git` or `.hg` directory.
+
+```bash
+# Disable Version Control System (VCS) directory traversal. By default, fasd
+# recursively searches upward for a .git or .hg directory. Disabling this
+# prevents disk I/O overhead on every command execution.
+export _FASD_ONLY_VCS=0
+```
+
+Reduce database size: Lowering the maximum database size reduces the parsing overhead incurred by `awk` when rewriting the file during prompt evaluation.
+
+```bash
+# Reduce the maximum size of the fasd database. A smaller database reduces the
+# parsing overhead incurred by awk when rewriting the file during prompt
+# evaluation.
+export _FASD_MAX=1000
+```
+
+Disable symlink resolution: Prevent the script from spawning sub-processes to run `xargs` and `readlink`.
+
+```bash
+# Disable symlink resolution. This prevents the script from spawning
+# sub-processes to run 'xargs' and 'readlink'.
+export _FASD_RESOLVE_SYMLINKS=0
+```
+
+Use mawk: The GNU `awk` implementation is standard, but `mawk` is a bytecode-compiled alternative that is faster. Install mawk with your package manager before adding the configuration below.
+
+```bash
+# The GNU awk (gawk) implementation is standard on many systems, but mawk is a
+# bytecode-compiled implementation that is faster.
+if type -P mawk &>/dev/null; then
+  export _FASD_AWK="mawk"
+  alias awk=mawk
+fi
+```
+
+Note: You will need to install `mawk` with your package manager.
+
 ## COPYING
 
 Fasd is originally written based on code from [z](https://github.com/rupa/z) by

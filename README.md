@@ -1,38 +1,43 @@
-# eFasd (Enhanced Fasd) - An fasd fork that is optimized for zero-latency prompt rendering and improved stability
+# eFasd (Enhanced Fasd) - A fasd fork that is optimized for faster shell prompt speed
 
-Fasd (pronounced similar to "e-fast") is a command-line productivity booster.
-Fasd offers quick access to files and directories for POSIX shells. It is
-inspired by tools like autojump, z and v.com/rupa/v). Fasd keeps track of files
-and directories you have accessed, so that you can quickly reference them in the
-command line.
+Navigating deeply nested file systems in POSIX shells on Linux and UNIX systems
+often requires typing repetitive, lengthy paths.
 
-The name fasd comes from the default suggested aliases `f`(files),
-`a`(files/directories), `s`(show/search/select), `d`(directories).
+The **[eFasd](https://github.com/jamescherti/efasd)** project resolves this by
+maintaining a continuous record of the files and directories you access.
 
-Fasd ranks files and directories by "frecency," that is, by both "frequency" and
-"recency." The term "frecency" was first coined by Mozilla and used in Firefox
-([link](https://developer.mozilla.org/en/The_Places_frecency_algorithm)).
+Instead of writing out absolute paths or executing multiple `cd` commands, you
+can use default `fasd` aliases like `j` to jump to a directory, `f` for files,
+`d` for directories, and `s` for search. This lets you navigate directly to
+active project directories or open common configuration files instantly.
 
-## About This Fork
+The `fasd` command calculates a "frecency" score for each path, an algorithm
+that weights both how often and how recently a file or directory was opened.
+This allows it to accurately predict your target destination with minimal input.
 
-eFasd is a fork of whjvenyl/fasd. Since the original repository is no longer
-actively maintained, this fork was created to integrate enhancements. eFasd
-introduces the following improvements:
+This tool is inspired by tools like autojump, z and v. The name `fasd` comes
+from the default suggested aliases `f`(files), `a`(files/directories),
+`s`(show/search/select), `d`(directories).
 
-- **Robust Temporary File Cleanup**: Implemented strict signal traps to
-  guarantee temporary files are cleaned up upon unexpected signal interruption
-  or process termination. This prevents the accumulation of orphaned temporary
-  files in the file system.
-- **VCS Traversal Safety**: Fixed a bug in the `get_vcs` directory traversal
-  logic that caused an infinite loop when the script encountered unreadable or
-  inaccessible parent directories.
-- **Zero-Latency Prompt Rendering**: The upstream `fasd` implementation executes
-  its processing pipeline synchronously during prompt evaluation. This causes
+## About this fork (eFasd)
+
+The eFasd project is a fork of the *whjvenyl/fasd* GitHub repository. Since the
+original repository is no longer actively maintained, this fork was created to
+integrate enhancements, such as:
+
+- The eFasd fork enhances speed by wrapping the execution pipeline in a
+  double-fork. This pushes the `fasd` workload to the background, which
+  eliminates prompt blocking while cleanly suppressing Bash job control output
+  notifications. The upstream *whjvenyl/fasd* `fasd` implementation executes its
+  processing pipeline synchronously during prompt evaluation. This causes
   approximately 35ms of latency per prompt render due to subshell forks and
-  synchronous disk I/O operations. This fork resolves the latency by wrapping
-  the execution pipeline in a double-fork pattern. This pushes the workload to
-  the background, eliminating prompt blocking while cleanly suppressing Bash job
-  control output notifications.
+  synchronous disk I/O operations.
+- Implemented strict signal traps to guarantee temporary files are cleaned up on
+  unexpected signal interruption or process termination. This prevents the
+  accumulation of orphaned temporary files in the file system.
+- Fixed a bug in the `get_vcs` directory traversal logic that caused an infinite
+  loop when the script encountered unreadable or inaccessible parent
+  directories.
 
 ## Introduction
 
@@ -401,3 +406,8 @@ _FASD_SINK="$HOME/.fasd.log"
 Fasd is originally written based on code from [z](https://github.com/rupa/z) by
 rupa deadwyler under the WTFPL license. Most if not all of the code has been
 rewritten. Fasd is licensed under the "MIT/X11" license.
+
+## Links
+
+- [efasd @GitHub](https://github.com/jamescherti/efasd)
+- [quick-fasd.el](https://github.com/jamescherti/quick-fasd.el): An Emacs package to integrate `fasd`.

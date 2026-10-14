@@ -414,15 +414,6 @@ Disable VCS traversal: Prevent disk I/O overhead on every command execution by s
 export _FASD_ONLY_VCS=0
 ```
 
-Reduce database size: Lowering the maximum database size reduces the parsing overhead incurred by `awk` when rewriting the file during prompt evaluation.
-
-```bash
-# Reduce the maximum size of the fasd database. A smaller database reduces the
-# parsing overhead incurred by awk when rewriting the file during prompt
-# evaluation.
-export _FASD_MAX=1000
-```
-
 Disable symlink resolution: Prevent the script from spawning sub-processes to run `xargs` and `readlink`.
 
 ```bash

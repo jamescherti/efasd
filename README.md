@@ -406,9 +406,11 @@ You can set `_FASD_SINK` in your [config file](#tweaks) to obtain a log.
 _FASD_SINK="$HOME/.fasd.log"
 ```
 
-## Recommendations to speed up fasd
+## Articles
 
-Article: **[Speed-up fasd shell prompt on UNIX and Linux systems](https://www.jamescherti.com/speed-up-fasd-shell-prompt/)**
+- **[Speed-up fasd shell prompt on UNIX and Linux systems](https://www.jamescherti.com/speed-up-fasd-shell-prompt/)**: Depending on the fasd implementation and shell hook, tracking can delay prompt rendering. This article describes environment variables that can reduce fasd shell prompt overhead: Version Control System (VCS) directory traversal, database size limits, symlink resolution, and shell string parsing dependencies.
+
+- **[Prioritizing fasd directories in bash, sh, and zsh shells (e.g., pinned and project directories)](https://www.jamescherti.com/fasd-prioritize-pinned-directories-bash-zsh-shell/)**: While the default fasd tracking works well for day-to-day shell navigation, there are a few edge cases when you have a set of core directories you always want at the top of your results. For example, if you clone a new repository, provision a new machine, or generate a directory list automatically, fasd knows nothing about those paths until you manually cd into each one first. To solve this, you can use a custom fasd backend to "pin" a static list of directories so they permanently outrank regular shell history.
 
 ## COPYING
 

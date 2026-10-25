@@ -1,5 +1,8 @@
 # eFasd (Enhanced Fasd) - A fasd fork that is optimized for faster shell prompt speed
 
+- Maintainer: James Cherti <[https://www.jamescherti.com/](https://www.jamescherti.com/)>
+- License: GPL
+
 Navigating deeply nested file systems in POSIX shells on Linux and UNIX systems
 often requires typing repetitive, lengthy paths.
 

@@ -1,11 +1,31 @@
 #!/usr/bin/env sh
-
+#
+# Maintainer: James Cherti <https://www.jamescherti.com/contact/>
+# URL: https://github.com/jamescherti/efasd
+# Version: 0.9.9
+#
+# Description:
+# ------------
+# Navigating deeply nested file systems in POSIX shells on Linux and UNIX
+# systems often requires typing repetitive, lengthy paths. The eFasd project
+# resolves this by maintaining a continuous record of the files and directories
+# you access. Instead of writing out absolute paths or executing multiple cd
+# commands, you can use default fasd aliases like j to jump to a directory, f
+# for files, d for directories, and s for search. This lets you navigate
+# directly to active project directories or open common configuration files
+# instantly.
+#
+# The fasd command calculates a "frecency" score for each path, an algorithm
+# that weights both how often and how recently a file or directory was opened.
+# This allows it to accurately predict your target destination with minimal
+# input. This tool is inspired by tools like autojump, z and v. The name fasd
+# comes from the default suggested aliases f(files), a(files/directories),
+# s(show/search/select), d(directories).
+#
 # Fasd (this file) can be sourced or executed by any POSIX compatible shell.
-
-# Fasd is originally written based on code from z (https://github.com/rupa/z)
-# by rupa deadwyler under the WTFPL license. Most if not all of the code has
-# been rewritten.
-
+#
+# License:
+# --------
 # Copyright (C) 2026 by James Cherti. All rights reserved.
 # Copyright (C) 2011, 2012 by Wei Dai. All rights reserved.
 #

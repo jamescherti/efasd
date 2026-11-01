@@ -21,6 +21,7 @@ The eFasd project is a fork of the *whjvenyl/fasd* repository. Because the origi
 - Implemented strict signal traps to guarantee temporary files are cleaned up on unexpected signal interruptions or process termination. This prevents orphaned temporary files from accumulating in the filesystem.
 - Fixed a bug in the `get_vcs` directory traversal logic that triggered an infinite loop when encountering unreadable or restricted parent directories.
 - Added automatic filtering of temporary directories from the `fasd` database, preventing temporary paths from polluting search rankings.
+- Create the parent directory and database file when missing, using append redirection to avoid truncating existing data.
 
 ## Introduction
 

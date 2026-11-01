@@ -434,6 +434,18 @@ EOS
 
     # maintain the file
     (
+      if [ -d "$_FASD_DATA" ]; then
+        printf 'fasd: error: "%s" is a directory\n' "$_FASD_DATA" >&2
+        exit 1
+      fi
+
+      if [ ! -f "$_FASD_DATA" ]; then
+        # Create the parent directory and database file when missing, using
+        # append redirection to avoid truncating existing data.
+        mkdir -p -- "$(dirname -- "$_FASD_DATA")" || exit 1
+        true >> "$_FASD_DATA" || exit 1
+      fi
+
       tempfile="$(mktemp "$_FASD_DATA".XXXXXX)" || exit 1
       # Trap unexpected exits and signals to guarantee cleanup
       trap '[ -f "$tempfile" ] && env rm -f "$tempfile" 2>/dev/null' EXIT

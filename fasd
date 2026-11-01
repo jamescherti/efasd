@@ -766,7 +766,7 @@ fasd [-A|-D] [paths ...]
     if [ "$res" ]; then
       fasd --add "$res"
       [ -z "$exec" ] && exec='printf %s\n'
-      exec $exec "$res"
+      $exec "$res"
     fi
     ;;
   esac

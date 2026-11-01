@@ -22,7 +22,8 @@ The eFasd project is a fork of the *whjvenyl/fasd* repository. Because the origi
 - Fixed a bug in the `get_vcs` directory traversal logic that triggered an infinite loop when encountering unreadable or restricted parent directories.
 - Added automatic filtering of temporary directories from the `fasd` database, preventing temporary paths from polluting search rankings.
 - Create the parent directory and database file when missing, using append redirection to avoid truncating existing data.
-- Ensure failed database updates never return success. Before, if awk or sed fails, the if statement skips the replacement but returns status zero because there is no else.
+- Ensure failed database updates return an error exit code. Previously, if `awk` or `sed` failed, the script skipped replacing the database file but exited with status 0 because the conditional lacked an `else` branch.
+- Prevent queries from terminating the parent shell when `fasd` is sourced. Previously, executing matched paths with `exec $exec "$res"` replaced the calling shell process in environments such as Bash and dash. Running the command directly without `exec` preserves the interactive shell session and allows shell functions to be used with `-e`.
 
 ## Introduction
 

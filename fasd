@@ -510,8 +510,10 @@ EOS
 
       # If the awk command succeeded, atomically replace the database
       if [ $? -eq 0 ]; then
-      env mv -f "$tempfile" "$_FASD_DATA"
-    fi
+        env mv -f "$tempfile" "$_FASD_DATA"
+      else
+        exit 1
+      fi
     )
     ;;
 
@@ -537,8 +539,10 @@ EOS
 
       # If the sed command succeeded, atomically replace the database
       if [ $? -eq 0 ]; then
-      env mv -f "$tempfile" "$_FASD_DATA"
-    fi
+        env mv -f "$tempfile" "$_FASD_DATA"
+      else
+        exit 1
+      fi
     )
     ;;
 

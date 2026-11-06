@@ -118,7 +118,22 @@ fasd() {
           fi
           [ -z "$_FASD_BLACKLIST" ] && _FASD_BLACKLIST="--help"
           [ -z "$_FASD_SHIFT" ] && _FASD_SHIFT="sudo busybox"
-          [ -z "$_FASD_IGNORE" ] && _FASD_IGNORE="fasd ls echo"
+          # Commands ignored by default to prevent database degradation:
+          # - Fasd query aliases (prevent index matching): a s sd sf d f z zz
+          # - Output & lookup utilities (non-path noise): echo, printf, which,
+          #   type
+          # - Deletions (prevent dead links): rm, unlink, rmdir, trash,
+          #   trash-put
+          # - Renames (prevent stale source paths): mv, rename
+          # - Bulk attribute changes (glob pollution): chmod, chown, chgrp
+          # - Ephemeral listing (wildcard pollution): ls
+          #
+          # Commands intentionally tracked (omitted from ignore list):
+          # - cp, rsync: Duplicating paths signals direct user intent.
+          # - tar, zip, unzip: Archive targets represent high-value context.
+          # - grep, rg, ag: Search targets reflect active user focus. Occasional
+          #   wildcard noise from these is handled by frecency decay.
+          [ -z "$_FASD_IGNORE" ] && _FASD_IGNORE="fasd ls echo printf rm unlink rmdir trash trash-put mv rename chmod chown chgrp a s sd sf d f z zz which type"
           [ -z "$_FASD_SINK" ] && _FASD_SINK=/dev/null
           [ -z "$_FASD_TRACK_PWD" ] && _FASD_TRACK_PWD=1
           [ -z "$_FASD_MAX" ] && _FASD_MAX=2000

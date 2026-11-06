@@ -24,6 +24,7 @@ The eFasd project is a fork of the *whjvenyl/fasd* repository. Because the origi
 - Create the parent directory and database file when missing, using append redirection to avoid truncating existing data.
 - Ensure failed database updates return an error exit code. Previously, if `awk` or `sed` failed, the script skipped replacing the database file but exited with status 0 because the conditional lacked an `else` branch.
 - Prevent queries from terminating the parent shell when `fasd` is sourced. Previously, executing matched paths with `exec $exec "$res"` replaced the calling shell process in environments such as Bash and dash. Running the command directly without `exec` preserves the interactive shell session and allows shell functions to be used with `-e`.
+- Expanded the default `_FASD_IGNORE` list to comprehensively prevent database pollution and stale entries. Exclusions now protect against false-positive indexing of search queries passed to jump aliases (`a`, `s`, `sd`, `sf`, `d`, `f`, `z`, `zz`), wildcard pollution from ephemeral directory listing (`ls`), non-path noise from output and lookup commands (`echo`, `printf`, `which`, `type`), dead links from file removals (`rm`, `unlink`, `rmdir`, `trash`, `trash-put`), stale paths from file renames (`mv`, `rename`), and database flooding caused by bulk attribute modifications (`chmod`, `chown`, `chgrp`).
 
 ## Introduction
 
